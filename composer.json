@@ -1,0 +1,35 @@
+{
+    "name": "softiso/price-parser",
+    "description": "A PHP price parser by url",
+	"type": "library",
+    "homepage": "https://github.com/softisoDev/price-parser",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ismayil Aliyev",
+            "email": "ismayil.developer@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4",
+		"guzzlehttp/guzzle": "^7.2",
+        "symfony/dom-crawler": "5.x-dev",
+        "symfony/css-selector": "5.x-dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "10.0.x-dev",
+        "symfony/var-dumper": "5.x-dev"
+    },
+    "autoload": {
+        "psr-4": {
+            "Softiso\\PriceParser\\": "src"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    },
+	"minimum-stability": "dev"
+}
