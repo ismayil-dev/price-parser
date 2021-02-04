@@ -9,4 +9,4 @@ require_once 'vendor/autoload.php';
 $url = 'https://www.trendyol.com/kumtel/blackthree-3-lu-ankastre-set-b66-s2-firin-ko-410-bf-ocak-da6-833-davlumbaz-p-63038917';
 
 $parser  = new Trendyol();
-echo $parser->url($url)->getPrice();
+dd($parser->url($url)->getPrice());

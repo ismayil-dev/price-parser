@@ -6,35 +6,18 @@ namespace Softiso\PriceParser;
 
 class Trendyol extends BaseParser
 {
-    public function getPrice()
-    {
-        $html = $this->getContent();
 
-        $findRegex = $this->extractByRegex($html, $this->getPatterns()['regex']);
-        $findByMeta = $this->extractFromMeta($html, $this->getPatterns()['meta']);
-        $findByClass = $this->extractByClassName($html, $this->getPatterns()['class']);
-
-        return !is_null($findRegex) ? $findRegex : (!is_null($findByMeta) ? $findByMeta : $findByClass);
-    }
-
-    protected function extractByRegex(string $html, $regexPatterns)
+    protected function getByRegex(string $html, $regexPatterns)
     {
         foreach ($regexPatterns as $pattern) {
-            $find = $this->crawler($html)->filterXPath('//script')->each(function ($node) use ($pattern) {
+            $find = array_filter($this->crawler($html)->filterXPath('//script96')->each(function ($node) use ($pattern) {
                 if (str_contains($node->text(), '__PRODUCT_DETAIL_APP_INITIAL_STATE__')) {
                     preg_match($pattern['pattern'], utf8_decode($node->text()), $out);
                     return $this->refiner($pattern['refine'], $out[$pattern['index']]);
                 }
-                return  null;
-            });
+            }));
 
-            $find = array_filter($find);
-
-            if (empty($find)) {
-                return null;
-            }
-
-            return reset($find)['product'];
+            return !empty($find) ? reset($find)['product']['price'] : null;
         }
 
         return null;
@@ -66,7 +49,8 @@ class Trendyol extends BaseParser
                 [
                     'className' => '.prc-slg',
                     'refine' => function (string $str) {
-                        return explode(' ', $str);
+                        $resp = explode(' ', $str);
+                        return $this->responseBody($resp[0], $resp[1]);
                     },
                 ],
             ]

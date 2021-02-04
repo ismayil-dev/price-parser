@@ -3,13 +3,18 @@
 
 namespace Softiso\PriceParser;
 
-
 use Softiso\PriceParser\Grabber\Grabber;
 use Symfony\Component\DomCrawler\Crawler;
 
 abstract class BaseParser implements ParserInterface
 {
     protected Grabber $grabber;
+
+    const PATTERN_METHODS = [
+        'regex' => 'getByRegex',
+        'meta' => 'getByMeta',
+        'class' => 'getByClass',
+    ];
 
     public function __construct()
     {
@@ -23,7 +28,21 @@ abstract class BaseParser implements ParserInterface
         return self::setGrabber(Grabber::url($url));
     }
 
-    public abstract function getPrice();
+    public function getPrice()
+    {
+        $html = $this->getContent();
+
+        foreach (self::PATTERN_METHODS as $key => $method) {
+            if (key_exists($key, $this->getPatterns()) && method_exists($this, $method)) {
+                $find = $this->$method($html, $this->getPatterns()[$key]);
+                if (!is_null($find)) {
+                    return $find;
+                }
+            }
+        }
+
+        return null;
+    }
 
     protected function setGrabber(Grabber $grabber)
     {
@@ -36,12 +55,7 @@ abstract class BaseParser implements ParserInterface
         return $this->grabber->getBody()->getContents();
     }
 
-    protected function getHeaders()
-    {
-        return $this->grabber->getHeader();
-    }
-
-    public function crawler($html)
+    protected function crawler($html)
     {
         return new Crawler($html);
     }
@@ -51,29 +65,21 @@ abstract class BaseParser implements ParserInterface
         return [];
     }
 
-    protected function extractFromMeta(string $html, array $metaPatterns, $extract = array('content'))
+    protected function getByMeta(string $html, array $metaPatterns, $extract = array('content'))
     {
         foreach ($metaPatterns as $pattern) {
             $find = $this->crawler($html)->filterXPath("//meta[" . $pattern['name'] . "]")->extract($extract);
-
-            if (empty($find) || is_null($find)) {
-                continue;
-            }
-            return $this->refiner($pattern['refine'], reset($find));
+            $refine = $this->refiner($pattern['refine'], reset($find) ?? null);
+            return $this->responseBody($refine, null);
         }
 
         return null;
     }
 
-    protected function extractByClassName(string $html, array $classPatterns)
+    protected function getByClass(string $html, array $classPatterns)
     {
         foreach ($classPatterns as $pattern) {
             $find = $this->crawler($html)->filter($pattern['className'])->text();
-
-            if (is_null($find) || is_null($find)) {
-                continue;
-            }
-
             return $this->refiner($pattern['refine'], $find);
         }
 
@@ -87,10 +93,10 @@ abstract class BaseParser implements ParserInterface
 
     protected function refiner($func, $data)
     {
-        if (is_callable($func)) {
-            return $func($data);
+        if (is_null($data) || empty($data)) {
+            return null;
         }
 
-        return $data;
+        return is_callable($func) ? $func($data) : $data;
     }
 }

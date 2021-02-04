@@ -3,7 +3,6 @@
 
 namespace Softiso\PriceParser\Grabber;
 
-
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 
