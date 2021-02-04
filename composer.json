@@ -24,7 +24,10 @@
     "autoload": {
         "psr-4": {
             "Softiso\\PriceParser\\": "src"
-        }
+        },
+        "files": [
+            "src/Helpers/helper.php"
+        ]
     },
     "extra": {
         "branch-alias": {
