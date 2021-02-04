@@ -12,6 +12,7 @@ abstract class BaseParser implements ParserInterface
 
     const PATTERN_METHODS = [
         'regex' => 'getByRegex',
+        'schema' => 'getBySchema',
         'meta' => 'getByMeta',
         'class' => 'getByClass',
     ];
@@ -70,7 +71,7 @@ abstract class BaseParser implements ParserInterface
         foreach ($metaPatterns as $pattern) {
             $find = $this->crawler($html)->filterXPath("//meta[" . $pattern['name'] . "]")->extract($extract);
             $refine = $this->refiner($pattern['refine'], reset($find) ?? null);
-            return $this->responseBody($refine, null);
+            return response_body($refine, null);
         }
 
         return null;
@@ -86,9 +87,21 @@ abstract class BaseParser implements ParserInterface
         return null;
     }
 
-    protected function responseBody($price = null, $currency = null)
+    protected function getBySchema(string $html, $schemaPattern)
     {
-        return ['price' => $price, 'currency' => $currency];
+        $find = array_filter($this->crawler($html)->filterXPath('//script[@type="application/ld+json"]')->each(function ($node) {
+            return $node->text();
+        }));
+
+        $filteredData = array_filter(array_map(function ($objStr) {
+            return json_decode($objStr, true);
+        }, $find), function ($obj) use ($schemaPattern){
+            return $obj['@type'] === $schemaPattern['type'];
+        });
+
+        $refine = $this->refiner($schemaPattern['refine'], reset($filteredData) ?? null);
+
+        return !is_null($refine) ? response_body($refine['price'], $refine['priceCurrency']) : null;
     }
 
     protected function refiner($func, $data)

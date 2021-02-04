@@ -10,7 +10,7 @@ class Trendyol extends BaseParser
     protected function getByRegex(string $html, $regexPatterns)
     {
         foreach ($regexPatterns as $pattern) {
-            $find = array_filter($this->crawler($html)->filterXPath('//script96')->each(function ($node) use ($pattern) {
+            $find = array_filter($this->crawler($html)->filterXPath('//script')->each(function ($node) use ($pattern) {
                 if (str_contains($node->text(), '__PRODUCT_DETAIL_APP_INITIAL_STATE__')) {
                     preg_match($pattern['pattern'], utf8_decode($node->text()), $out);
                     return $this->refiner($pattern['refine'], $out[$pattern['index']]);
@@ -48,10 +48,7 @@ class Trendyol extends BaseParser
             'class' => [
                 [
                     'className' => '.prc-slg',
-                    'refine' => function (string $str) {
-                        $resp = explode(' ', $str);
-                        return $this->responseBody($resp[0], $resp[1]);
-                    },
+                    'refine' => 'price_delimiter'
                 ],
             ]
         ];
