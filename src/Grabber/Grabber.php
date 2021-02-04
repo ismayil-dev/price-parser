@@ -5,6 +5,8 @@ namespace Softiso\PriceParser\Grabber;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Response;
+use Softiso\PriceParser\Exceptions\NotFoundException;
 
 class Grabber
 {
@@ -30,7 +32,11 @@ class Grabber
     private function makeRequest()
     {
         try {
-            return $this->client->get($this->url);
+            return $this->client->get($this->url,  [
+                'headers' => [
+                    'User-Agent' => $_SERVER['HTTP_USER_AGENT']
+                ]
+            ]);
         } catch (GuzzleException $e) {
             return $e->getMessage();
         }
@@ -38,7 +44,11 @@ class Grabber
 
     public function getBody()
     {
-        return $this->makeRequest()->getBody();
+        $request = $this->makeRequest();
+
+        if (!$request instanceof Response) throw new NotFoundException("404 not found");
+
+        return $request->getBody()->getContents();
     }
 
     public function getHeader()

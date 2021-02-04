@@ -12,7 +12,8 @@ class Defacto extends BaseParser
         return [
             'schema' => [
                 'type' => 'Product',
-                'refine' => fn(array $arr) => array_key_exists('offers', $arr) ? $arr['offers'] : null,
+                'refine' => 'schema_get_offer',
+                'priceKey' => 'price',
             ],
             'class' => [
                 [

@@ -31,7 +31,7 @@ abstract class BaseParser implements ParserInterface
 
     public function getPrice()
     {
-        $html = $this->getContent();
+        $html = $this->grabber->getBody();
 
         foreach (self::PATTERN_METHODS as $key => $method) {
             if (key_exists($key, $this->getPatterns()) && method_exists($this, $method)) {
@@ -49,11 +49,6 @@ abstract class BaseParser implements ParserInterface
     {
         $this->grabber = $grabber;
         return $this;
-    }
-
-    protected function getContent()
-    {
-        return $this->grabber->getBody()->getContents();
     }
 
     protected function crawler($html)
@@ -101,7 +96,7 @@ abstract class BaseParser implements ParserInterface
 
         $refine = $this->refiner($schemaPattern['refine'], reset($filteredData) ?? null);
 
-        return !is_null($refine) ? response_body($refine['price'], $refine['priceCurrency']) : null;
+        return !is_null($refine) ? response_body($refine[$schemaPattern['priceKey']], $refine['priceCurrency']) : null;
     }
 
     protected function refiner($func, $data)

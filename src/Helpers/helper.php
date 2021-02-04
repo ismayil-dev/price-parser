@@ -11,6 +11,12 @@ function price_delimiter(string $str)
     return !empty($resp) ? response_body($resp[0], $resp[1]) : null;
 }
 
-function response_body($price = null, $currency = null) {
+function response_body($price = null, $currency = null)
+{
     return ['price' => $price, 'currency' => $currency];
+}
+
+function schema_get_offer(array $arr)
+{
+    return array_key_exists('offers', $arr) ? $arr['offers'] : null;
 }

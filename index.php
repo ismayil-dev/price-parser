@@ -1,6 +1,6 @@
 <?php
 
-use Softiso\PriceParser\Defacto;
+use Softiso\PriceParser\Ebay;
 
 require_once 'vendor/autoload.php';
 
@@ -8,8 +8,7 @@ require_once 'vendor/autoload.php';
 //$url = 'https://www.trendyol.com/izla/sir-agda-makine-2-adet-pudrali-soyulabilen-boncuk-agda-spatula-seti-97854253214521-p-34417675';
 //$url = 'https://www.trendyol.com/kumtel/blackthree-3-lu-ankastre-set-b66-s2-firin-ko-410-bf-ocak-da6-833-davlumbaz-p-63038917';
 
+$url = 'https://www.gittigidiyor.com/giyim-aksesuar/dexter-marinella-z911-1_pdp_644404522';
+$parser = new Ebay();
 
-$url = 'https://www.defacto.com.tr/renk-bloklu-fermuarli-sweatshirt-1493559';
-
-$parser = new Defacto();
 dd($parser->url($url)->getPrice());
