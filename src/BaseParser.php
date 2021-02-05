@@ -15,6 +15,9 @@ abstract class BaseParser
      */
     protected $html = null;
 
+    /**
+     * @var null
+     */
     protected $url = null;
 
     protected const PATTERN_METHODS = [
