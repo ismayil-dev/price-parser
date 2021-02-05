@@ -17,7 +17,11 @@ To use library you have to following load 'vendor/autoload.php' file:
 `require_once 'vendor/autoload.php';`
 
 
-Example usage:
+### Example usage:
 
 1. Parse price by url: see `example/url.php` file
-1. Parse price by static html content: see `example/html.php` file
+2. Parse price by static html content: see `example/html.php` file
+
+### Unit test
+This project use `pestphp/pest` package for unit testing  
+To run rest write following command in project directory `vendor\bin\pest`
