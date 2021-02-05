@@ -6,7 +6,7 @@ namespace Softiso\PriceParser;
 
 class N11 extends BaseParser
 {
-    protected function getPatterns()
+    protected function getPatterns(): array
     {
         return [
             'schema' => [

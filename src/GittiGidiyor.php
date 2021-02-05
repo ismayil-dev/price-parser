@@ -3,10 +3,12 @@
 
 namespace Softiso\PriceParser;
 
-//WebPage
-class Ebay extends BaseParser
+class GittiGidiyor extends BaseParser
 {
-    protected function getPatterns()
+    /**
+     * @return array[]
+     */
+    protected function getPatterns(): array
     {
         return [
             'schema' => [

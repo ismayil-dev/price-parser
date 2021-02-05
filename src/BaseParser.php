@@ -6,17 +6,20 @@ namespace Softiso\PriceParser;
 use Softiso\PriceParser\Grabber\Grabber;
 use Symfony\Component\DomCrawler\Crawler;
 
-abstract class BaseParser implements ParserInterface
+class BaseParser implements ParserInterface
 {
     protected Grabber $grabber;
 
-    const PATTERN_METHODS = [
+    protected const PATTERN_METHODS = [
         'regex' => 'getByRegex',
         'schema' => 'getBySchema',
         'meta' => 'getByMeta',
         'class' => 'getByClass',
     ];
 
+    /**
+     * BaseParser constructor.
+     */
     public function __construct()
     {
         if (function_exists('boot')) {
@@ -24,11 +27,19 @@ abstract class BaseParser implements ParserInterface
         }
     }
 
-    public function url(string $url)
+    /**
+     * @param string $url
+     * @return $this
+     */
+    public function url(string $url): BaseParser
     {
         return self::setGrabber(Grabber::url($url));
     }
 
+    /**
+     * @return null
+     * @throws Exceptions\NotFoundException
+     */
     public function getPrice()
     {
         $html = $this->grabber->getBody();
@@ -45,23 +56,40 @@ abstract class BaseParser implements ParserInterface
         return null;
     }
 
-    protected function setGrabber(Grabber $grabber)
+    /**
+     * @param Grabber $grabber
+     * @return $this
+     */
+    protected function setGrabber(Grabber $grabber): BaseParser
     {
         $this->grabber = $grabber;
         return $this;
     }
 
-    protected function crawler($html)
+    /**
+     * @param $html
+     * @return Crawler
+     */
+    protected function crawler($html): Crawler
     {
         return new Crawler($html);
     }
 
-    protected function getPatterns()
+    /**
+     * @return array
+     */
+    protected function getPatterns(): array
     {
         return [];
     }
 
-    protected function getByMeta(string $html, array $metaPatterns, $extract = array('content'))
+    /**
+     * @param string $html
+     * @param array $metaPatterns
+     * @param string[] $extract
+     * @return array|null
+     */
+    protected function getByMeta(string $html, array $metaPatterns, $extract = array('content')): ?array
     {
         foreach ($metaPatterns as $pattern) {
             $find = $this->crawler($html)->filterXPath("//meta[" . $pattern['name'] . "]")->extract($extract);
@@ -72,6 +100,11 @@ abstract class BaseParser implements ParserInterface
         return null;
     }
 
+    /**
+     * @param string $html
+     * @param array $classPatterns
+     * @return null
+     */
     protected function getByClass(string $html, array $classPatterns)
     {
         foreach ($classPatterns as $pattern) {
@@ -82,7 +115,12 @@ abstract class BaseParser implements ParserInterface
         return null;
     }
 
-    protected function getBySchema(string $html, $schemaPattern)
+    /**
+     * @param string $html
+     * @param $schemaPattern
+     * @return array|null
+     */
+    protected function getBySchema(string $html, $schemaPattern): ?array
     {
         $find = array_filter($this->crawler($html)->filterXPath('//script[@type="application/ld+json"]')->each(function ($node) {
             return $node->text();
@@ -99,6 +137,11 @@ abstract class BaseParser implements ParserInterface
         return !is_null($refine) ? response_body($refine[$schemaPattern['priceKey']], $refine['priceCurrency']) : null;
     }
 
+    /**
+     * @param $func
+     * @param $data
+     * @return null
+     */
     protected function refiner($func, $data)
     {
         if (is_null($data) || empty($data)) {

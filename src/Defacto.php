@@ -7,7 +7,10 @@ namespace Softiso\PriceParser;
 class Defacto extends BaseParser
 {
 
-    protected function getPatterns()
+    /**
+     * @return array
+     */
+    protected function getPatterns(): array
     {
         return [
             'schema' => [

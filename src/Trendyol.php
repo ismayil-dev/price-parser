@@ -7,6 +7,11 @@ namespace Softiso\PriceParser;
 class Trendyol extends BaseParser
 {
 
+    /**
+     * @param string $html
+     * @param $regexPatterns
+     * @return mixed|null
+     */
     protected function getByRegex(string $html, $regexPatterns)
     {
         foreach ($regexPatterns as $pattern) {
@@ -23,7 +28,10 @@ class Trendyol extends BaseParser
         return null;
     }
 
-    protected function getPatterns()
+    /**
+     * @return array
+     */
+    protected function getPatterns(): array
     {
         return [
             'regex' => [
