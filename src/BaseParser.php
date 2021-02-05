@@ -6,9 +6,16 @@ namespace Softiso\PriceParser;
 use Softiso\PriceParser\Grabber\Grabber;
 use Symfony\Component\DomCrawler\Crawler;
 
-class BaseParser implements ParserInterface
+abstract class BaseParser
 {
     protected Grabber $grabber;
+
+    /**
+     * @var null
+     */
+    protected $html = null;
+
+    protected $url = null;
 
     protected const PATTERN_METHODS = [
         'regex' => 'getByRegex',
@@ -33,7 +40,13 @@ class BaseParser implements ParserInterface
      */
     public function url(string $url): BaseParser
     {
-        return self::setGrabber(Grabber::url($url));
+        return self::setGrabber(Grabber::url($this->url = $url));
+    }
+
+    public function html(string $html): BaseParser
+    {
+        $this->html = $html;
+        return $this;
     }
 
     /**
@@ -42,11 +55,17 @@ class BaseParser implements ParserInterface
      */
     public function getPrice()
     {
-        $html = $this->grabber->getBody();
+        if (!is_null($this->url)) {
+            return $this->parsePrice($this->grabber->getBody());
+        }
+        return $this->parsePrice($this->html);
+    }
 
+    protected function parsePrice($body)
+    {
         foreach (self::PATTERN_METHODS as $key => $method) {
             if (key_exists($key, $this->getPatterns()) && method_exists($this, $method)) {
-                $find = $this->$method($html, $this->getPatterns()[$key]);
+                $find = $this->$method($body, $this->getPatterns()[$key]);
                 if (!is_null($find)) {
                     return $find;
                 }
@@ -78,10 +97,7 @@ class BaseParser implements ParserInterface
     /**
      * @return array
      */
-    protected function getPatterns(): array
-    {
-        return [];
-    }
+    protected abstract function getPatterns(): array;
 
     /**
      * @param string $html
@@ -128,7 +144,7 @@ class BaseParser implements ParserInterface
 
         $filteredData = array_filter(array_map(function ($objStr) {
             return json_decode($objStr, true);
-        }, $find), function ($obj) use ($schemaPattern){
+        }, $find), function ($obj) use ($schemaPattern) {
             return $obj['@type'] === $schemaPattern['type'];
         });
 
